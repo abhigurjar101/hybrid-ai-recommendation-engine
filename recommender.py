@@ -1,7 +1,7 @@
 """
 Hybrid AI Recommendation Engine
-Combines Collaborative Filtering (User-Item Matrix Factorization)
-with Content-Based Metadata Filtering to solve Cold-Start and deliver high-CTR recommendations.
+Combines user-neighborhood Collaborative Filtering
+with Content-Based Metadata Filtering with a uniform fallback for unknown users; no engagement uplift is measured.
 Engineered by Abhi Gurjar.
 """
 
@@ -93,9 +93,13 @@ class HybridRecommender:
         alpha: Weight given to Content-Based filtering (1.0 = 100% content, 0.0 = 100% collaborative).
         Higher alpha provides better cold-start protection for new users or sparse items.
         """
+        if isinstance(alpha, bool) or not isinstance(alpha, (int, float)) or not math.isfinite(alpha) or not 0 <= alpha <= 1:
+            raise ValueError("alpha must be a finite number between 0 and 1")
         self.alpha = alpha
 
     def recommend(self, user_id: str, top_n: int = 3) -> List[Dict[str, Any]]:
+        if isinstance(top_n, bool) or not isinstance(top_n, int) or top_n < 0:
+            raise ValueError("top_n must be a non-negative integer")
         user_history = USER_RATINGS.get(user_id, {})
         unseen_items = [item for item in CATALOG if item["id"] not in user_history]
 
@@ -146,7 +150,7 @@ def main():
             print(f"     • Peer Collaborative: {r['collaborative_affinity'] * 100:.1f}%")
 
     print("\n" + "=" * 80)
-    print("✅ All recommendation scenarios verified successfully!")
+    print("Demo complete. Run the test suite for assertions.")
     print("=" * 80)
 
 
